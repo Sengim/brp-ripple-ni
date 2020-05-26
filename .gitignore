@@ -1,3 +1,5 @@
 /venv
 data.txt
 .idea/
+/data
+__pycache__/
