@@ -1,6 +1,7 @@
 import node
 import ledger
 import node_random
+import random
 
 class Env:
 
@@ -41,8 +42,7 @@ def classify_string(input_strin):
 
 
 if __name__ == "__main__":
-    n = 50
-    file_obj = open("data/data.txt", "w+")
+
     env = Env(4)
     genesis_ledger = ledger.Ledger()
     env.lastVals = [genesis_ledger, genesis_ledger, genesis_ledger, genesis_ledger]
@@ -53,7 +53,7 @@ if __name__ == "__main__":
 
     env.receive()
     env.round = env.lastVals[0].sequence_num
-    for i in range(40):
+    for i in range(400):
     #while env.lastVals[3].sequence_num < n or env.lastVals[1].sequence_num < n \
      #       or env.lastVals[2].sequence_num < n or env.lastVals[0].sequence_num < n:
         #print(str(env.lastVals[0].sequence_num) + " " + str(env.lastVals[1].sequence_num) + " " + str(env.lastVals[2].sequence_num) + " " + str(env.lastVals[3].sequence_num))
@@ -74,7 +74,7 @@ if __name__ == "__main__":
 
     env.receive()
     env.round = env.lastVals[0].sequence_num
-    for i in range(16):
+    for i in range(70):
         # while env.lastVals[3].sequence_num < n or env.lastVals[1].sequence_num < n \
         #       or env.lastVals[2].sequence_num < n or env.lastVals[0].sequence_num < n:
         # print(str(env.lastVals[0].sequence_num) + " " + str(env.lastVals[1].sequence_num) + " " + str(env.lastVals[2].sequence_num) + " " + str(env.lastVals[3].sequence_num))
@@ -91,27 +91,42 @@ if __name__ == "__main__":
     env.receive()
     for node_ in env.nodes:
         node_.start(temp3)
+    for j in range(80):
 
-    for i in range(3):
-        env.nodes[i] = node_random.RandomNode(env, i)
 
-    env.lastVals = [temp2, temp2, temp2, temp3]
-    env.receive()
-    for node_ in env.nodes:
-        node_.start(temp3)
+        for i in range(random.randint(2,3)):
+            env.nodes[i] = node_random.RandomNode(env, i)
 
-    for i in range(3):
+        env.lastVals = [temp2, temp2, temp2, temp3]
+        env.receive()
+        for node_ in env.nodes:
+            node_.start(temp3)
+
+        for i in range(3):
+            for node_ in env.nodes:
+                node_.update()
+
+            env.receive()
+        env.lastVals = [temp2, temp2, temp2, temp2]
+        env.receive()
         for node_ in env.nodes:
             node_.update()
 
-        env.receive()
-    env.lastVals = [temp2, temp2, temp2, temp2]
-    env.receive()
-    for node_ in env.nodes:
-        node_.update()
-
     #print(len(env.stringarray))
+
+    file_obj = open("data/data.txt", "w+")
+    file_obj.write(str(len(env.stringarray)) + " 7 \r\n")
+
     for temp in env.stringarray:
-        print(temp)
+        array = temp.split(" ")
+        if array[-1] == "F":
+            tempstring = "0 " + str(len(array)-1) + " "
+        else:
+            tempstring = "1 " + str(len(array)-1) + " "
+        for element in array:
+            if not( element == "F" or element == "T"):
+                tempstring  = tempstring + element + " "
+        tempstring = tempstring + "\r\n"
+        file_obj.write(tempstring)
 
 
