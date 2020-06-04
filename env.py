@@ -53,7 +53,7 @@ if __name__ == "__main__":
 
     env.receive()
     env.round = env.lastVals[0].sequence_num
-    for i in range(400):
+    for i in range(4000):
     #while env.lastVals[3].sequence_num < n or env.lastVals[1].sequence_num < n \
      #       or env.lastVals[2].sequence_num < n or env.lastVals[0].sequence_num < n:
         #print(str(env.lastVals[0].sequence_num) + " " + str(env.lastVals[1].sequence_num) + " " + str(env.lastVals[2].sequence_num) + " " + str(env.lastVals[3].sequence_num))
@@ -91,7 +91,7 @@ if __name__ == "__main__":
     env.receive()
     for node_ in env.nodes:
         node_.start(temp3)
-    for j in range(80):
+    for j in range(800):
 
 
         for i in range(random.randint(2,3)):

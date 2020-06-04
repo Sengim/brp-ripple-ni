@@ -48,9 +48,9 @@ class Node:
         for prop in self.propositions:
             temp = False
             temp2 = count+1
-            for comp in comp_set:
-                if set(prop) == comp:
-                    temp2 = count
+            for j in range(len(comp_set)):
+                if set(prop) == comp_set[j]:
+                    temp2 = j
                     temp = True
             if not temp:
                 count = count + 1
