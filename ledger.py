@@ -25,10 +25,10 @@ class Ledger:
         return True
 
     @staticmethod
-    def ancestor_contains(ledger, lowerledger):
-        while ledger.sequence_num < lowerledger.sequence_num:
+    def ancestor_contains(ledger_, lowerledger):
+        while ledger_.sequence_num < lowerledger.sequence_num:
             lowerledger = lowerledger.prevLedger
-        return lowerledger.identifier == ledger.identifier
+        return lowerledger.identifier == ledger_.identifier
 
     def create_new(self, transactions):
         for ledg in self.children:

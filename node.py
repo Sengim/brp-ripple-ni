@@ -5,23 +5,16 @@ import numpy as np
 
 class Node:
 
-    def __init__(self, env, id):
+    def __init__(self, env, id, ledg=None):
         self.queue = []
         self.transactions = []
         self.lastVals = []
         self.propositions = []
-        self.currentLedger = ledger.Ledger(None, [])
-        self.round = 0
-        self.id = id
-        self.env = env
-        self.roundstring = ""
+        if ledg is None:
 
-    def __init__(self, env, id, ledg):
-        self.queue = []
-        self.transactions = []
-        self.lastVals = []
-        self.propositions = []
-        self.currentLedger = ledg
+            self.currentLedger = ledger.Ledger(None, [])
+        else:
+            self.currentLedger = ledg
         self.round = 0
         self.id = id
         self.env = env
@@ -34,7 +27,9 @@ class Node:
         self.round = 0
         self.roundstring = ""
         if self.prefferedLedger() != self.currentLedger:
-            self.roundstring = "PB1 "
+            self.roundstring = "PB1 F"
+            self.env.add_string(self.roundstring, self.id)
+            self.start(self.prefferedLedger())
         else:
             self.roundstring = "PB0 "
 
@@ -59,7 +54,7 @@ class Node:
                     temp = True
             if not temp:
                 count = count + 1
-                comp_set.append(set(prop))
+                comp_set.append(set(prop).copy())
 
             self.roundstring = self.roundstring + "P" + str(temp2) + " "
         self.roundstring = self.roundstring + "RR "
@@ -68,8 +63,8 @@ class Node:
     def update(self):
         if self.currentLedger.sequence_num > 0 and self.currentLedger != self.prefferedLedger():
             self.roundstring = self.roundstring + "PB1 F"
-            self.env.add_string(self.roundstring)
-            self.start(self.prefferedLedger)
+            self.env.add_string(self.roundstring, self.id)
+            self.start(self.prefferedLedger())
         else:
             if self.round == 0:
                 self.generateTransactions()
@@ -77,12 +72,13 @@ class Node:
                 self.round = self.round + 1
             elif self.round == 4:
                 self.roundstring = self.roundstring + "F"
+                self.env.add_string(self.roundstring, self.id)
                 self.start(self.currentLedger)
             else:
                 self.updatePosition()
                 if self.checkConsensus():
                     self.roundstring = self.roundstring + "T"
-                    self.env.add_string(self.roundstring)
+                    self.env.add_string(self.roundstring, self.id)
                     #print(str(self.id) + "node found transactionset: " + str(self.transactions) + "on ledger: " + str(self.currentLedger.identifier))
                     self.currentLedger = self.currentLedger.create_new(transactions=self.transactions)
                     self.broadcast(self.currentLedger)
@@ -99,6 +95,7 @@ class Node:
             if int(math.ceil(self.threshold() * 4)) <= scores[i]:
                 positions.append(i)
         self.transactions = positions
+        self.round = self.round + 1
         self.broadcast(positions)
 
     def threshold(self):
@@ -127,13 +124,12 @@ class Node:
             for adam_child in adam.children:
                 temp.append(self.branch_support(adam_child))
             index_arr = np.argsort(temp)
-
             delta = self.branch_support(adam.children[index_arr[0]])
             if len(adam.children) > 1:
                 delta = delta - self.branch_support(adam.children[index_arr[1]]) + self.phi(
-                    self.branch_support(adam.children[index_arr[0]]), self.branch_support(adam.children[index_arr[1]]))
+                    adam.children[index_arr[0]], adam.children[index_arr[1]])
             if delta > self.uncommitted(adam.sequence_num + 1):
-                adam = self.branch_support(adam.children[index_arr[0]])
+                adam = adam.children[index_arr[0]]
             else:
                 done = True
         if ledger.Ledger.ancestor_contains(adam, self.currentLedger):
