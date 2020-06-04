@@ -14,12 +14,29 @@ class Node:
         self.round = 0
         self.id = id
         self.env = env
+        self.roundstring = ""
+
+    def __init__(self, env, id, ledg):
+        self.queue = []
+        self.transactions = []
+        self.lastVals = []
+        self.propositions = []
+        self.currentLedger = ledg
+        self.round = 0
+        self.id = id
+        self.env = env
+        self.roundstring = ""
 
     def start(self, L):
         self.currentLedger = L
         self.generateTransactions()
         #self.broadcast(self.transactions)
         self.round = 0
+        self.roundstring = ""
+        if self.prefferedLedger() != self.currentLedger:
+            self.roundstring = "PB1 "
+        else:
+            self.roundstring = "PB0 "
 
     def generateTransactions(self):
         new_transaction_list = []
@@ -30,26 +47,51 @@ class Node:
                 new_transaction_list.append(i)
         self.transactions = new_transaction_list.copy()
 
+    def updateString(self):
+        comp_set = [set(self.propositions[0])]
+        count = 0
+        for prop in self.propositions:
+            temp = False
+            temp2 = count+1
+            for comp in comp_set:
+                if set(prop) == comp:
+                    temp2 = count
+                    temp = True
+            if not temp:
+                count = count + 1
+                comp_set.append(set(prop))
+
+            self.roundstring = self.roundstring + "P" + str(temp2) + " "
+        self.roundstring = self.roundstring + "RR "
+
+
     def update(self):
         if self.currentLedger.sequence_num > 0 and self.currentLedger != self.prefferedLedger():
+            self.roundstring = self.roundstring + "PB1 F"
+            self.env.add_string(self.roundstring)
             self.start(self.prefferedLedger)
         else:
             if self.round == 0:
                 self.generateTransactions()
                 self.broadcast(self.transactions)
                 self.round = self.round + 1
+            elif self.round == 4:
+                self.roundstring = self.roundstring + "F"
+                self.start(self.currentLedger)
             else:
                 self.updatePosition()
                 if self.checkConsensus():
+                    self.roundstring = self.roundstring + "T"
+                    self.env.add_string(self.roundstring)
                     #print(str(self.id) + "node found transactionset: " + str(self.transactions) + "on ledger: " + str(self.currentLedger.identifier))
-                    self.currentLedger = ledger.Ledger(self.currentLedger, self.transactions)
+                    self.currentLedger = self.currentLedger.create_new(transactions=self.transactions)
                     self.broadcast(self.currentLedger)
                     self.start(self.currentLedger)
-
 
     def updatePosition(self):
         positions = []
         scores = [0] * 20
+        self.updateString()
         for listr in self.propositions:
             for k in listr:
                 scores[k] = scores[k] + 1

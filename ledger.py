@@ -30,6 +30,12 @@ class Ledger:
             lowerledger = lowerledger.prevLedger
         return lowerledger.identifier == ledger.identifier
 
+    def create_new(self, transactions):
+        for ledg in self.children:
+            if self.identifier + sum(transactions) == ledg.identifier:
+                return ledg
+        return Ledger(prevLedger=self, transactions=transactions)
+
     def __init__(self, prevLedger=None, transactions=[]):
         if prevLedger is None:
             self.identifier = 0
