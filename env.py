@@ -2,6 +2,7 @@ import node
 import ledger
 import node_random
 import random
+import fast_consensus
 
 
 class Env:
@@ -40,9 +41,14 @@ class Env:
 
 
 if __name__ == "__main__":
-    random.seed(988999)
+    random.seed(9889999)
 
     env = Env(4)
+    for i in range(4):
+        if i == 3:
+            env.nodes[i] = fast_consensus.FastConsensus(env, i)
+        else:
+            env.nodes[i] = node_random.RandomNode(env, i)
     genesis_ledger = ledger.Ledger()
     env.lastVals = [genesis_ledger, genesis_ledger, genesis_ledger, genesis_ledger]
     env.receive()
@@ -62,7 +68,10 @@ if __name__ == "__main__":
         env.receive()
 
     for i in range(4):
-        env.nodes[i] = node.Node(env, i)
+        if i == 3:
+            env.nodes[i] = fast_consensus.FastConsensus(env, i)
+        else:
+            env.nodes[i] = node.Node(env, i)
 
     genesis_ledger = ledger.Ledger()
     env.lastVals = [genesis_ledger, genesis_ledger, genesis_ledger, genesis_ledger]
