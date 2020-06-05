@@ -3,6 +3,7 @@ import ledger
 import node_random
 import random
 import fast_consensus
+import consensus_after_4
 
 
 class Env:
@@ -46,7 +47,7 @@ if __name__ == "__main__":
     env = Env(4)
     for i in range(4):
         if i == 3:
-            env.nodes[i] = fast_consensus.FastConsensus(env, i)
+            env.nodes[i] = consensus_after_4.Consensus4(env, i)
         else:
             env.nodes[i] = node_random.RandomNode(env, i)
     genesis_ledger = ledger.Ledger()
@@ -69,7 +70,7 @@ if __name__ == "__main__":
 
     for i in range(4):
         if i == 3:
-            env.nodes[i] = fast_consensus.FastConsensus(env, i)
+            env.nodes[i] = consensus_after_4.Consensus4(env, i)
         else:
             env.nodes[i] = node.Node(env, i)
 
