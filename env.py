@@ -3,6 +3,7 @@ import ledger
 import node_random
 import random
 
+
 class Env:
 
     def __init__(self, n):
@@ -37,11 +38,9 @@ class Env:
             temp.lastVals = self.lastVals
             temp.propositions = self.lastProps.copy()
 
-def classify_string(input_strin):
-    return True
-
 
 if __name__ == "__main__":
+    random.seed(988999)
 
     env = Env(4)
     genesis_ledger = ledger.Ledger()
