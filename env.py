@@ -41,7 +41,7 @@ class Env:
 
 
 if __name__ == "__main__":
-    random.seed(9889999)
+    random.seed(9889997)
 
     env = Env(4)
     for i in range(4):
